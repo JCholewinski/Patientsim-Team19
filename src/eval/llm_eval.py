@@ -75,6 +75,8 @@ def flatten_dict_simple(d, parent_key="", sep="_"):
     return dict(items)
 
 
+
+
 def main(args):
     # Set evaluate path & setting
     result_path = os.path.join(args.result_dir, args.trg_exp_name)
@@ -218,7 +220,133 @@ def main(args):
                 total_persona_eval_result[eval_target][scenario] = answer
 
             # Logging & save
-            save_to_json(total_persona_eval_result, save_path)    
+            save_to_json(total_persona_eval_result, save_path)  
+
+    if args.eval_enhanced_realism:
+        # Load prompt
+        user_prompt_template = file_to_string(
+            os.path.join(args.prompt_dir, "eval_dialogue_user_enhanced_realism.txt")
+        )
+        eval_criteria_dict = load_json(
+            os.path.join(args.prompt_dir, "llm_eval_metrics_enhanced_realism.json")
+        )
+
+        CEFR_DICT = {
+            "A": "Beginner. Can make simple sentences.",
+            "B": "Intermediate. Can have daily conversations.",
+            "C": "Advanced. Can freely use even advanced medical terms.",
+        }
+
+        PERSONALITY_DICT = {
+            "plain": "Neutral. No strong emotions or noticeable behavior.",
+            "verbose": "Talkative Speaks a lot, and provides highly detailed responses.",
+            "distrust": "Distrustful. Questions the doctor’s expertise and care.",
+            "pleasing": "Pleasing. Overly positive and tend to minimize their problems.",
+            "impatient": "Impatient. Easily irritated and lacks patience.",
+            "overanxious": "Overanxious. Expresses concern beyond what is typical.",
+        }
+
+        RECALL_DICT = {
+            "low": "Low. Often forgetting even major medical history.",
+            "high": "High. Usually recalls their medical history accurately.",
+        }
+
+        DAZED_DICT = {
+            "normal": "Clear mental status, with naturally reflect their own persona.",
+            "high": (
+                "Initially highly dazed and confused, struggles with conversation. "
+                "With the doctor's reassurance, their dazedness subsides to a normal state."
+            ),
+        }
+
+        # Set save path & save variables
+        total_enhanced_realism_result = {k: {} for k in eval_criteria_dict.keys()}
+        save_path = os.path.join(
+            result_path,
+            f"{args.evaluator}_enhanced_realism_{args.trg_agent}.json"
+        )
+        assert not os.path.isfile(save_path)
+
+        # Start evaluation
+        for data in tqdm(dialogue_hists):
+            # Load data per scenario
+            scenario = data["hadm_id"]
+            dialogue = data["dialog_history"]
+
+            persona_prompt = {
+                "Personality": PERSONALITY_DICT[data["personality_type"]],
+                "CEFR": CEFR_DICT[data["cefr_type"]],
+                "Recall_level": RECALL_DICT[data["recall_level_type"]],
+                "Dazed_level": DAZED_DICT[data["dazed_level_type"]],
+            }
+
+            persona_info = PATIENT_PERSONA_TEMPLATE.format(
+                personality=persona_prompt["Personality"],
+                cefr=persona_prompt["CEFR"],
+                memory_recall_level=persona_prompt["Recall_level"],
+                dazed_level=persona_prompt["Dazed_level"],
+            )
+
+            profile = get_profile(scenario_dict, scenario)
+            profile = flatten_dict_simple(profile)
+
+            if profile.get("diagnosis", "") == "Urinary tract infection":
+                profile_info = PATIENT_PROFILE_TEMPLATE_UTI.format(**profile)
+            else:
+                profile_info = PATIENT_PROFILE_TEMPLATE.format(**profile)
+
+            conversation = ""
+            for utter in dialogue[:-1]:
+                conversation += f"""\t{utter["role"]}: {process_string(utter["content"])}\n"""
+
+            conversation += f"""\t{dialogue[-1]["role"]}: {process_string(dialogue[-1]["content"].split(".")[0])}.\n"""
+
+            # Set up prompt & get llm response
+            for eval_target, descriptions in eval_criteria_dict.items():
+                score_rubric = SCORE_RUBRIC_TEMPLATE.format(**descriptions)
+
+                user_prompt = user_prompt_template.format(
+                    conversation=conversation,
+                    rubric=score_rubric,
+                    profile=profile_info,
+                    persona=persona_info,
+                )
+
+                user_content = ABS_SYSTEM_PROMPT + "\n\n" + user_prompt
+                messages = [{"role": "user", "content": user_content}]
+
+                response = client(
+                    messages,
+                    model=model,
+                    temperature=args.temperature,
+                    seed=args.random_seed,
+                )
+                answer = get_answer(response)
+
+                retry_cnt = 0
+                max_retry = 10
+
+                while "[RESULT]:" not in answer:
+                    print(answer)
+                    print("retry")
+
+                    if max_retry < retry_cnt:
+                        answer = None
+                        break
+
+                    response = client(
+                        messages,
+                        model=model,
+                        temperature=args.temperature,
+                        seed=None,
+                    )
+                    answer = get_answer(response)
+                    retry_cnt += 1
+
+                total_enhanced_realism_result[eval_target][scenario] = answer
+
+        # Logging & save
+        save_to_json(total_enhanced_realism_result, save_path)
 
 
     if args.eval_profile_consistency:
@@ -371,6 +499,7 @@ if __name__ == "__main__":
     parser.add_argument("--eval_persona_quality", action="store_true", help="eval response quality performance")
     parser.add_argument("--eval_profile_consistency", action="store_true", help="eval response quality performance")
     parser.add_argument("--eval_doc_quality", action="store_true", help="eval response quality performance")
+    parser.add_argument("--eval_enhanced_realism",action="store_true",help="eval whole-dialogue realism and consistency before or after adding descriptive text")
 
     parser.add_argument("--temperature", type=int, default=0)
     parser.add_argument("--random_seed", type=int, default=42)

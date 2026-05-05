@@ -1,0 +1,30 @@
+{
+  "Factual_Accuracy": {
+    "criteria": "The conversation accurately reflects the patient's documented medical condition, symptoms, physical state, and clinical profile. If descriptive text is present, it should also be medically consistent with the patient profile.",
+    "score1_description": "The conversation contains major factual or medical inconsistencies with the patient profile. Spoken symptoms or descriptive details clearly contradict the documented condition.",
+    "score2_description": "The conversation is only partially consistent with the patient profile. Several spoken or descriptive details are questionable, unsupported, or medically weak.",
+    "score3_description": "The conversation is mostly consistent with the patient profile. Minor details may be vague or not explicitly supported, but there are no major contradictions.",
+    "score4_description": "The conversation is fully consistent with the patient's documented medical condition, symptoms, and physical state. Spoken dialogue and any descriptive text are clinically plausible."
+  },
+  "Personality_Consistency": {
+    "criteria": "The conversation is consistent with the patient's assigned personality type. If descriptive text is present, non-verbal actions, gestures, posture, and facial expressions should also match the assigned personality.",
+    "score1_description": "The patient's spoken or non-verbal behavior strongly contradicts the assigned personality.",
+    "score2_description": "The patient's behavior is frequently inconsistent with the assigned personality. Some parts fit, but many spoken or descriptive elements do not match the persona.",
+    "score3_description": "The patient's behavior is mostly consistent with the assigned personality. There may be small mismatches, but the overall interaction fits the persona.",
+    "score4_description": "The patient's spoken and, if present, non-verbal behavior consistently reinforces the assigned personality."
+  },
+  "Contextual_Coherence": {
+    "criteria": "The conversation is contextually appropriate and logically consistent across turns. If descriptive text is present, it should also align with the patient's verbal expression and the flow of the conversation.",
+    "score1_description": "The conversation contains clear contradictions or context-breaking behavior. Spoken dialogue or descriptive text does not fit the situation.",
+    "score2_description": "The conversation is frequently misaligned. Several responses, gestures, expressions, or actions do not logically follow the dialogue flow.",
+    "score3_description": "The conversation is mostly coherent. Only minor misalignments appear, and they do not significantly disrupt the interaction.",
+    "score4_description": "The conversation is fully coherent. Spoken dialogue and any descriptive text logically follow the situation and previous turns."
+  },
+  "Clinical_Realism": {
+    "criteria": "The overall conversation feels like a realistic emergency department consultation between a doctor and a patient. If descriptive text is present, it should support the realism of the encounter.",
+    "score1_description": "The conversation feels highly unrealistic as an emergency department encounter. Dialogue or descriptive behavior is artificial, exaggerated, or clinically implausible.",
+    "score2_description": "The conversation is somewhat realistic but contains noticeable unrealistic dialogue, behavior, or descriptive text that weakens the emergency department setting.",
+    "score3_description": "The conversation is mostly realistic as an emergency department encounter. Dialogue and any descriptive text generally support the clinical setting, with only minor issues.",
+    "score4_description": "The conversation feels highly realistic as an emergency department consultation. Dialogue and any descriptive text naturally support the clinical situation, patient behavior, and doctor-patient interaction."
+  }
+}
