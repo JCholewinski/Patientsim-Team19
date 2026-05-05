@@ -14,6 +14,8 @@ GENAI_API_KEY = os.environ.get("GENAI_API_KEY", "")
 AZURE_OPENAI_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
 AZURE_ENDPOINT = os.environ.get("AZURE_ENDPOINT", "")
 PORT = os.environ.get("VLLM_PORT", "")
+GOOGLE_GENAI_USE_VERTEXAI = os.environ.get("GOOGLE_GENAI_USE_VERTEXAI", "").lower() == "true"
+
 
 if AZURE_OPENAI_KEY != "":
     azure_client = AzureOpenAI(
@@ -22,8 +24,19 @@ if AZURE_OPENAI_KEY != "":
         api_version="2024-10-21",
     )
 
-if GENAI_API_KEY != "":
-    gen_client = genai.Client(vertexai=True, api_key=GENAI_API_KEY, http_options=HttpOptions(api_version="v1"))
+# if GENAI_API_KEY != "":
+#     gen_client = genai.Client(vertexai=True, api_key=GENAI_API_KEY, http_options=HttpOptions(api_version="v1"))
+
+if GOOGLE_GENAI_USE_VERTEXAI:
+    gen_client = genai.Client(
+        vertexai=True,
+        http_options=HttpOptions(api_version="v1"),
+    )
+elif GENAI_API_KEY != "":
+    gen_client = genai.Client(
+        api_key=GENAI_API_KEY,
+        http_options=HttpOptions(api_version="v1"),
+    )
 
 time_gap = {"gpt-4": 3}
 
