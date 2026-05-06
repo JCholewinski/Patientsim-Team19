@@ -3,19 +3,18 @@ You are given a doctor-patient conversation, the patient's clinical profile, the
 
 Evaluate the whole conversation as a simulated emergency department encounter.
 
-The conversation may or may not contain descriptive text. Descriptive text means non-verbal actions, gestures, facial expressions, posture, physical appearance, or observable patient behavior, usually written between asterisks, for example: *The patient looks confused and rubs her left arm.*
+The conversation may or may not contain descriptive text. Descriptive text means non-verbal actions, gestures, facial expressions, 
+posture, physical appearance, or observable patient behavior, usually written between asterisks, for example: *The patient looks confused and rubs her left arm.*
 
 Important rules:
-1. Assess the whole conversation at once, not a single sentence in isolation.
-2. Do not automatically penalize a conversation only because it does not contain descriptive text.
-3. If descriptive text is present, use it as additional evidence when judging realism, coherence, personality consistency, and factual accuracy.
-4. If descriptive text is absent, evaluate the spoken dialogue only using the same rubric.
-5. Judge only according to the provided rubric.
-6. Do not add medical advice or external assumptions beyond the patient profile and conversation.
-7. After the feedback, provide a score that is an integer between 1 and 4.
-8. The output string format must be exactly:
-"[REASON]: write a brief feedback for criteria, [RESULT]: an integer number between 1 and 4"
-9. Do not generate any other opening, closing, or explanation.
+1. Do not automatically penalize a conversation only because it does not contain descriptive text.
+2. If descriptive text is present, use it as additional evidence when judging realism, coherence, personality consistency, and factual accuracy.
+3. If descriptive text is absent, evaluate the spoken dialogue only using the same rubric.
+4. Do not add medical advice or external assumptions beyond the patient profile and conversation.
+5. After the feedback, provide a score that is an integer between 1 and 4, strictly referring to the rubric descriptions.
+6. The output string format must be exactly: "[REASON]: write a brief feedback for criteria, [RESULT]: an integer number between 1 and 4"
+7. Do not generate any other opening, closing, or explanation.
+8. You should score only the patient part of the conversation.
 
 ###The Conversation to Evaluate:
 {conversation}
