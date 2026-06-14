@@ -12,7 +12,7 @@ data:
   data_file_name: patient_profile
   num_scenarios: null
   num_word_sample: 10
-  patient_prompt_file: initial_system_patient_w_persona
+  patient_prompt_file: initial_system_patient_w_persona_descriptive
   doctor_prompt_file: initial_system_doctor
 
 

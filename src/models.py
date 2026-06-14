@@ -15,6 +15,7 @@ AZURE_OPENAI_KEY = os.environ.get("AZURE_OPENAI_KEY", "")
 AZURE_ENDPOINT = os.environ.get("AZURE_ENDPOINT", "")
 PORT = os.environ.get("VLLM_PORT", "")
 GOOGLE_GENAI_USE_VERTEXAI = os.environ.get("GOOGLE_GENAI_USE_VERTEXAI", "").lower() == "true"
+GOOGLE_CLOUD_PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "")
 
 
 if AZURE_OPENAI_KEY != "":
@@ -24,19 +25,15 @@ if AZURE_OPENAI_KEY != "":
         api_version="2024-10-21",
     )
 
-# if GENAI_API_KEY != "":
-#     gen_client = genai.Client(vertexai=True, api_key=GENAI_API_KEY, http_options=HttpOptions(api_version="v1"))
+if GENAI_API_KEY != "":
+    gen_client = genai.Client(vertexai=True, api_key=GENAI_API_KEY, http_options=HttpOptions(api_version="v1"))
 
-if GOOGLE_GENAI_USE_VERTEXAI:
+if GOOGLE_CLOUD_PROJECT != "":
     gen_client = genai.Client(
         vertexai=True,
         http_options=HttpOptions(api_version="v1"),
     )
-elif GENAI_API_KEY != "":
-    gen_client = genai.Client(
-        api_key=GENAI_API_KEY,
-        http_options=HttpOptions(api_version="v1"),
-    )
+
 
 time_gap = {"gpt-4": 3}
 
@@ -99,7 +96,7 @@ def gemini_response(message: list, model="gemini-2.0-flash", temperature=0, seed
         raise NotImplementedError
 
     try:
-        if model == "gemini-2.5-flash":
+        if model == "gemini-2.5-flash" or model.startswith("gemini-3.5-flash"):
             return gen_client.models.generate_content(
                 model=model,
                 contents=contents,
