@@ -1,5 +1,7 @@
 __pycache__
 *sh
 data
-results
 google_credentials.json
+../.DS_Store
+.DS_Store
+results
